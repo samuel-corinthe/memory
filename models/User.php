@@ -38,4 +38,13 @@ class User
         $stmt->execute([$id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    public function exists($username)
+{
+    $stmt = $this->pdo->prepare("SELECT id FROM users WHERE username = :username");
+    $stmt->bindParam(':username', $username);
+    $stmt->execute();
+    return $stmt->rowCount() > 0;
+}
+
 }
