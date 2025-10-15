@@ -3,8 +3,9 @@
 <h2>Inscription</h2>
 
 <?php if(!empty($error)): ?>
-    <p style="color:red;"><?= $error ?></p>
+    <p style="color:red;"><?= htmlspecialchars($error) ?></p>
 <?php endif; ?>
+
 
 <form method="post" action="index.php?action=register">
     <label for="username">Nom d'utilisateur :</label><br>

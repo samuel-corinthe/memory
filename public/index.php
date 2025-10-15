@@ -8,24 +8,24 @@ $action = $_GET['action'] ?? 'home';
 
 switch ($action) {
 
-// rgister
-case 'register':
-    $error = '';
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $auth = new AuthController();
-        $result = $auth->register($_POST['username'], $_POST['password']);
+    // rgister
+    case 'register':
+        $error = '';
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $auth = new AuthController();
+            $result = $auth->register($_POST['username'], $_POST['password']);
 
-        if (is_array($result) && isset($result['success']) && $result['success'] === false) {
-           
-            $error = $result['message'];
-        } else {
-            
-            header('Location: index.php?action=login');
-            exit;
+            if (is_array($result) && isset($result['success']) && $result['success'] === false) {
+
+                $error = $result['message'];
+            } else {
+
+                header('Location: index.php?action=login');
+                exit;
+            }
         }
-    }
-    require '../views/auth/register.php';
-    break;
+        require '../views/auth/register.php';
+        break;
 
 
     // login
@@ -49,46 +49,46 @@ case 'register':
         header('Location: index.php?action=login');
         exit;
 
-    // game
+        // game
     case 'play':
-    if (!isset($_SESSION['user_id'])) header('Location: index.php?action=login');
+        if (!isset($_SESSION['user_id'])) header('Location: index.php?action=login');
 
-  
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['numPairs'])) {
-        $_SESSION['numPairs'] = intval($_POST['numPairs']);
-        unset($_SESSION['memory_game']); 
-        $numPairs = $_SESSION['numPairs'];
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['numPairs'])) {
+            $_SESSION['numPairs'] = intval($_POST['numPairs']);
+            unset($_SESSION['memory_game']);
+            $numPairs = $_SESSION['numPairs'];
+            $game = new GameController($numPairs);
+            $cards = $game->getCards();
+            require '../views/game/play.php';
+            break;
+        }
+
+        if (!isset($_SESSION['memory_game'])) {
+            require '../views/game/config.php';
+            break;
+        }
+
+        $numPairs = $_SESSION['numPairs'] ?? 3;
         $game = new GameController($numPairs);
+
+        // fli^p
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['card_index'])) {
+            $game->handleFlip(intval($_POST['card_index']));
+        }
+
         $cards = $game->getCards();
         require '../views/game/play.php';
         break;
-    }
-
-    if (!isset($_SESSION['memory_game'])) {
-        require '../views/game/config.php';
-        break;
-    }
-
-    $numPairs = $_SESSION['numPairs'] ?? 3;
-    $game = new GameController($numPairs);
-
-    // Gestion du flip
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['card_index'])) {
-        $game->handleFlip(intval($_POST['card_index']));
-    }
-
-    $cards = $game->getCards();
-    require '../views/game/play.php';
-    break;
 
 
-    // --- QUIT ---
+    // quit
     case 'quit':
         unset($_SESSION['memory_game']);
-        header('Location: index.php?action=profile'); // ou home
+        header('Location: index.php?action=profile');
         exit;
 
-    // --- PROFILE ---
+        // profil
     case 'profile':
         if (!isset($_SESSION['user_id'])) header('Location: index.php?action=login');
         $profileCtrl = new ProfileController();
@@ -97,21 +97,15 @@ case 'register':
         require '../views/profile/stats.php';
         break;
 
-    // --- TOP 10 ---
+    // top 10
     case 'top10':
         $gameCtrl = new GameController();
         $top10 = $gameCtrl->getTop10();
         require '../views/classement/top10.php';
         break;
 
-    // --- HOME ---
+    // defaut
     default:
-        echo "<h2>Bienvenue sur Memory Game 2.0</h2>";
-        if (isset($_SESSION['username'])) {
-            echo "<p>Bonjour {$_SESSION['username']} !</p>";
-            echo "<p><a href='index.php?action=play'>Jouer</a> | <a href='index.php?action=profile'>Profil</a> | <a href='index.php?action=top10'>Top 10</a> | <a href='index.php?action=logout'>Déconnexion</a></p>";
-        } else {
-            echo "<p><a href='index.php?action=login'>Se connecter</a> | <a href='index.php?action=register'>S'inscrire</a></p>";
-        }
-        break;
+        header('Location: index.php?action=register');
+        exit;
 }
