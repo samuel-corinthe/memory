@@ -80,7 +80,7 @@ nav {
 
 .logout, .quit-button {
     display: inline-block;
-    margin: -7px;
+    margin: 15px;
     padding: 10px 20px;
     font-weight: bold;
     border-radius: 10px;
